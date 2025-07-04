@@ -1,14 +1,8 @@
-import './App.css'
-import Login from './Components/Login';
+import React from 'react';
+import Home from './Components/Home.jsx';
 
 function App() {
-
-
-  return (
-    <>
-      <Login />
-    </>
-  )
+  return <Home />;
 }
 
-export default App
+export default App;

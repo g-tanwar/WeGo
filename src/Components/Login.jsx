@@ -1,11 +1,10 @@
 import React from 'react';
 
-const Login = () => {
-  // Apply full height to root
+const Login = ({ onLogin }) => {
   const bodyStyle = {
     margin: 0,
     padding: 0,
-    height: '100vh',                                      
+    height: '100vh',
     background: 'linear-gradient(to right, #c2e9fb, #a1c4fd)',
     display: 'flex',
     justifyContent: 'center',
@@ -53,7 +52,12 @@ const Login = () => {
     <div style={bodyStyle}>
       <div style={boxStyle}>
         <h2 style={{ marginBottom: '1rem', color: '#333' }}>Welcome to WeGo 👋</h2>
-        <form>
+        <form
+          onSubmit={(e) => {
+            e.preventDefault(); // Prevent refresh
+            onLogin(); // Trigger parent login handler
+          }}
+        >
           <input type="email" placeholder="Email" style={inputStyle} />
           <input type="password" placeholder="Password" style={inputStyle} />
           <button type="submit" style={buttonStyle}>Login</button>
