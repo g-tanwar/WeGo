@@ -2,13 +2,11 @@ import React from 'react';
 
 const Login = ({ onLogin }) => {
   const bodyStyle = {
-    margin: 0,
-    padding: 0,
     height: '100vh',
-    background: 'linear-gradient(to right, #c2e9fb, #a1c4fd)',
     display: 'flex',
     justifyContent: 'center',
     alignItems: 'center',
+    background: 'linear-gradient(to right, #c2e9fb, #a1c4fd)',
     fontFamily: 'sans-serif',
   };
 
@@ -42,29 +40,20 @@ const Login = ({ onLogin }) => {
     fontSize: '1rem',
   };
 
-  const linkStyle = {
-    color: '#6a5acd',
-    textDecoration: 'none',
-    fontWeight: '500',
-  };
-
   return (
     <div style={bodyStyle}>
       <div style={boxStyle}>
-        <h2 style={{ marginBottom: '1rem', color: '#333' }}>Welcome to WeGo 👋</h2>
+        <h2>Welcome to WeGo 👋</h2>
         <form
           onSubmit={(e) => {
-            e.preventDefault(); // Prevent refresh
-            onLogin(); // Trigger parent login handler
+            e.preventDefault();
+            onLogin();
           }}
         >
           <input type="email" placeholder="Email" style={inputStyle} />
           <input type="password" placeholder="Password" style={inputStyle} />
           <button type="submit" style={buttonStyle}>Login</button>
         </form>
-        <p style={{ marginTop: '1rem', fontSize: '0.9rem', color: '#666' }}>
-          Don't have an account? <a href="#" style={linkStyle}>Sign up</a>
-        </p>
       </div>
     </div>
   );

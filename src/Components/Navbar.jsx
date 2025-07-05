@@ -1,8 +1,10 @@
 import React, { useState } from 'react';
+import { Link, useLocation } from 'react-router-dom';
 import Sidebar from './Sidebar.jsx';
 
 const Navbar = () => {
   const [showSidebar, setShowSidebar] = useState(false);
+  const location = useLocation();
 
   const navStyle = {
     display: 'flex',
@@ -35,20 +37,16 @@ const Navbar = () => {
     paddingBottom: '0.3rem',
   };
 
-  const hamburgerStyle = {
-    fontSize: '1.5rem',
-    cursor: 'pointer',
-  };
-
   return (
     <>
       <nav style={navStyle}>
-        <span style={hamburgerStyle} onClick={() => setShowSidebar(true)}>☰</span>
+        <span style={{ fontSize: '1.5rem', cursor: 'pointer' }} onClick={() => setShowSidebar(true)}>☰</span>
         <div style={linksStyle}>
-          <a href="#" style={activeLink}>Home</a>
-          <a href="#" style={link}>Profile</a>
-          <a href="#" style={link}>Courses</a>
-          <a href="#" style={link}>My Doubts</a>
+          <Link to="/home" style={location.pathname === '/home' ? activeLink : link}>Home</Link>
+          <Link to="/profile" style={location.pathname === '/profile' ? activeLink : link}>Profile</Link>
+          <Link to="/courses" style={location.pathname === '/courses' ? activeLink : link}>Courses</Link>
+          <Link to="/rankings" style={location.pathname === '/rankings' ? activeLink : link}>Rankings</Link>
+          <Link to="/doubts" style={location.pathname === '/doubts' ? activeLink : link}>My Doubts</Link>
         </div>
       </nav>
 

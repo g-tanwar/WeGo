@@ -1,15 +1,21 @@
 import React from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
 
 const Sidebar = ({ onClose }) => {
-  const overlayStyle = {
-    position: 'fixed',
-    top: 0,
-    left: 0,
-    width: '100vw',
-    height: '100vh',
-    backgroundColor: 'rgba(0,0,0,0.3)',
-    zIndex: 999,
-  };
+  const location = useLocation();
+  const navigate = useNavigate();
+
+  const isActive = (path) => location.pathname === path;
+
+  const linkStyle = (path) => ({
+    margin: '0.8rem 0',
+    fontWeight: isActive(path) ? 'bold' : 'normal',
+    fontSize: '1rem',
+    color: isActive(path) ? '#6a5acd' : '#333',
+    borderLeft: isActive(path) ? '4px solid #6a5acd' : '4px solid transparent',
+    paddingLeft: '0.5rem',
+    cursor: 'pointer',
+  });
 
   const sidebarStyle = {
     position: 'fixed',
@@ -21,6 +27,17 @@ const Sidebar = ({ onClose }) => {
     padding: '1.5rem',
     boxShadow: '2px 0 12px rgba(0, 0, 0, 0.2)',
     zIndex: 1000,
+    overflowY: 'auto',
+  };
+
+  const overlayStyle = {
+    position: 'fixed',
+    top: 0,
+    left: 0,
+    width: '100vw',
+    height: '100vh',
+    backgroundColor: 'rgba(0,0,0,0.3)',
+    zIndex: 999,
   };
 
   const closeBtn = {
@@ -36,39 +53,51 @@ const Sidebar = ({ onClose }) => {
     cursor: 'pointer',
   };
 
-  const sectionStyle = {
-    margin: '1rem 0',
-    fontWeight: '500',
-    fontSize: '1rem',
-    color: '#333',
-  };
-
   return (
     <>
       <div style={overlayStyle} onClick={onClose}></div>
       <div style={sidebarStyle}>
         <button style={closeBtn} onClick={onClose}>×</button>
-
         <div style={{ textAlign: 'center' }}>
           <img
             src="https://via.placeholder.com/80"
             alt="Profile"
             style={{ borderRadius: '50%', marginBottom: '0.5rem' }}
           />
-          <h3 style={{ marginBottom: '1.5rem' }}>Gourav Tanwar</h3>
+          <h3 style={{ marginBottom: '1.2rem' }}>Gourav Tanwar</h3>
         </div>
 
-        <div style={sectionStyle}>🏅 Top Achievements</div>
-        <div style={sectionStyle}>📰 Top News</div>
-        <div style={sectionStyle}>🎯 For You</div>
-        <div style={sectionStyle}>💳 Your Credits</div>
-        <div style={sectionStyle}>🤝 Connections</div>
-        <div style={sectionStyle}>📊 Rankings</div>
-        <div style={sectionStyle}>⚙️ Settings</div>
-        <div style={sectionStyle}>ℹ️ About Us</div>
-        <div style={sectionStyle}>📞 Contact Us</div>
+        <div style={linkStyle('/achievements')} onClick={() => { navigate('/achievements'); onClose(); }}>
+          🏅 Top Achievements
+        </div>
 
+        <div style={linkStyle('/news')} onClick={() => { navigate('/news'); onClose(); }}>
+          📰 Top News
+        </div>
 
+        <div style={linkStyle('/foryou')} onClick={() => { navigate('/foryou'); onClose(); }}>
+          🎯 For You
+        </div>
+
+        <div style={linkStyle('/credits')} onClick={() => { navigate('/credits'); onClose(); }}>
+          💳 Your Credits
+        </div>
+
+        <div style={linkStyle('/connections')} onClick={() => { navigate('/connections'); onClose(); }}>
+          🔗 Connections
+        </div>
+
+        <div style={linkStyle('/contact')} onClick={() => { navigate('/contact'); onClose(); }}>
+          📞 Contact Us
+        </div>
+
+        <div style={linkStyle('/settings')} onClick={() => { navigate('/settings'); onClose(); }}>
+          ⚙️ Settings
+        </div>
+
+        <div style={linkStyle('/about')} onClick={() => { navigate('/about'); onClose(); }}>
+          ℹ️ About Us
+        </div>
       </div>
     </>
   );
