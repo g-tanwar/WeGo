@@ -51,7 +51,7 @@ const Rankings = () => {
 
   return (
     <>
-      <Navbar />
+    <Navbar />
       <div style={pageStyle}>
         <h1 style={headingStyle}>🏆 Student Rankings</h1>
         <table style={tableStyle}>

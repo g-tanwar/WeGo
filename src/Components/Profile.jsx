@@ -34,7 +34,7 @@ const Profile = () => {
 
   return (
     <>
-      <Navbar />
+        <Navbar />
       <div style={pageStyle}>
         <div style={cardStyle}>
           <h2>👨‍🎓 Gourav Tanwar</h2>
