@@ -2,6 +2,7 @@
 
 import React from 'react';
 import Navbar from './Navbar.jsx';
+import LeaderboardGraph from './LeaderboardGraph.jsx';
 
 const Rankings = () => {
   const pageStyle = {
@@ -25,6 +26,7 @@ const Rankings = () => {
     borderRadius: '1rem',
     overflow: 'hidden',
     boxShadow: '0 8px 20px rgba(0,0,0,0.1)',
+    animation: 'fadeIn 1s ease-in',
   };
 
   const thStyle = {
@@ -39,6 +41,7 @@ const Rankings = () => {
     padding: '1rem',
     borderBottom: '1px solid #eee',
     fontSize: '1rem',
+    transition: 'transform 0.3s ease',
   };
 
   const rankings = [
@@ -49,9 +52,30 @@ const Rankings = () => {
     { rank: 5, name: 'Ankur Yadav', credits: 410, badge: '🏅 Participant' },
   ];
 
+  const getRowStyle = (rank, name) => {
+    if (name === 'Gourav Tanwar') return { backgroundColor: '#f9d037' }; 
+    if (rank === 1) return { backgroundColor: '#f9d037' }; // Gold
+    if (rank === 2) return { backgroundColor: '#dfe6e9' }; // Silver
+    if (rank === 3) return { backgroundColor: '#fab1a0' }; // Bronze
+    return {};
+  };
+
   return (
     <>
-    <Navbar />
+      <style>
+        {`
+          @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+          }
+          tr:hover {
+            transform: scale(1.02);
+            transition: transform 0.3s;
+          }
+        `}
+      </style>
+
+      <Navbar />
       <div style={pageStyle}>
         <h1 style={headingStyle}>🏆 Student Rankings</h1>
         <table style={tableStyle}>
@@ -65,7 +89,7 @@ const Rankings = () => {
           </thead>
           <tbody>
             {rankings.map((student, index) => (
-              <tr key={index}>
+              <tr key={index} style={getRowStyle(student.rank, student.name)}>
                 <td style={tdStyle}>{student.rank}</td>
                 <td style={tdStyle}>{student.name}</td>
                 <td style={tdStyle}>{student.credits}</td>
@@ -74,6 +98,8 @@ const Rankings = () => {
             ))}
           </tbody>
         </table>
+        <LeaderboardGraph />
+
       </div>
     </>
   );

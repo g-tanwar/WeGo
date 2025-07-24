@@ -78,12 +78,12 @@ const Navbar = () => {
           </div>
           <hr />
           <p onClick={() => navigate('/achievements')} style={{ margin: '1rem 0', cursor: 'pointer' }}>🏆 Top Achievements</p>
-          <p style={{ margin: '1rem 0', cursor: 'pointer' }}>📰 Top News</p>
-          <p style={{ margin: '1rem 0', cursor: 'pointer' }}>✨ For You</p>
-          <p style={{ margin: '1rem 0', cursor: 'pointer' }}>💰 Your Credits</p>
-          <p style={{ margin: '1rem 0', cursor: 'pointer' }}>⚙️ Settings</p>
-          <p style={{ margin: '1rem 0', cursor: 'pointer' }}>ℹ️ About Us</p>
-          <p style={{ margin: '1rem 0', cursor: 'pointer' }}>📞 Contact Us</p>
+          <p onClick={() => navigate('/news')} style={{ margin: '1rem 0', cursor: 'pointer' }}>📰 Top News</p>
+          <p onClick={() => navigate('/foryou')} style={{ margin: '1rem 0', cursor: 'pointer' }}>✨ For You</p>
+          <p onClick={() => navigate('/credits')} style={{ margin: '1rem 0', cursor: 'pointer' }}>💰 Your Credits</p>
+          <p onClick={() => navigate('/setting')} style={{ margin: '1rem 0', cursor: 'pointer' }}>⚙️ Settings</p>
+          <p onClick={() => navigate('/about')} style={{ margin: '1rem 0', cursor: 'pointer' }}>ℹ️ About Us</p>
+          <p onClick={() => navigate('/contact')} style={{ margin: '1rem 0', cursor: 'pointer' }}>📞 Contact Us</p>
         </div>
       )}
     </>

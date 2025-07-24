@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 
 import Navbar from './Navbar.jsx';
 import Sidebar from './Sidebar.jsx';
-
+import StatsGraphs from './StatsGraphs.jsx';
 const Home = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false);  
   const toggleSidebar = () => setSidebarOpen(!sidebarOpen);
@@ -46,6 +46,27 @@ const Home = () => {
     cursor: 'pointer'
   };
 
+  const testimonialSectionStyle = {
+    marginTop: '4rem',
+    padding: '2rem',
+    backgroundColor: '#f0f8ff',
+    borderRadius: '20px',
+    maxWidth: '1000px',
+    marginLeft: 'auto',
+    marginRight: 'auto',
+    boxShadow: '0 8px 24px rgba(0,0,0,0.1)'
+  };
+
+  const testimonialCardStyle = {
+    background: 'white',
+    padding: '1.5rem',
+    borderRadius: '15px',
+    width: '280px',
+    boxShadow: '0 4px 8px rgba(0,0,0,0.1)',
+    textAlign: 'left',
+    flex: '1 1 250px'
+  };
+
   return (
     <>
       <style>
@@ -63,6 +84,7 @@ const Home = () => {
 
       <Navbar toggleSidebar={toggleSidebar} />
       <Sidebar isOpen={sidebarOpen} />
+      
       
       <div style={containerStyle}>
         <div style={boxStyle}>
@@ -103,8 +125,31 @@ const Home = () => {
             </div>
           </div>
         </div>
+
+        {/* ✅ Testimonials Section */}
+        <div style={testimonialSectionStyle}>
+          <h2 style={{ textAlign: 'center', marginBottom: '2rem' }}>💬 What Our Students Say</h2>
+
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '1.5rem', justifyContent: 'center' }}>
+            <div style={testimonialCardStyle}>
+              <p>"WeGo helped me master React and crack my internship interview!"</p>
+              <p style={{ fontWeight: 'bold', marginTop: '1rem' }}>— Priya Sharma</p>
+            </div>
+
+            <div style={testimonialCardStyle}>
+              <p>"Thanks to WeGo I cleared DSA rounds with confidence!"</p>
+              <p style={{ fontWeight: 'bold', marginTop: '1rem' }}>— Sahil Verma</p>
+            </div>
+
+            <div style={testimonialCardStyle}>
+              <p>"Loved the peer-to-peer doubt solving, better than YouTube!"</p>
+              <p style={{ fontWeight: 'bold', marginTop: '1rem' }}>— Anjali Mehta</p>
+            </div>
+          </div>
+        </div>
+        <StatsGraphs />
       </div>
-                    
+
     </>
   );
 };
