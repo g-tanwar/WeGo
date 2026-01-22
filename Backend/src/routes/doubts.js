@@ -52,6 +52,23 @@ router.get('/', async (req, res) => {
     }
 });
 
+// GET /api/doubts/:id - Get a single doubt
+router.get('/:id', async (req, res) => {
+    try {
+        const doubt = await Doubt.findById(req.params.id)
+            .populate('author', 'username')
+            .populate('answers.author', 'username');
+
+        if (!doubt) {
+            return res.status(404).json({ error: 'Doubt not found' });
+        }
+        res.json(doubt);
+    } catch (error) {
+        console.error('Error fetching doubt:', error);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+});
+
 // POST /api/doubts/:id/answer - Answer a doubt
 router.post('/:id/answer', authenticate, async (req, res) => {
     try {
@@ -116,6 +133,45 @@ router.post('/:id/upvote', authenticate, async (req, res) => {
         res.json(doubt);
     } catch (error) {
         console.error('Error upvoting doubt:', error);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+});
+
+// POST /api/doubts/:id/answers/:answerId/upvote - Toggle upvote on an answer
+router.post('/:id/answers/:answerId/upvote', authenticate, async (req, res) => {
+    try {
+        const { id, answerId } = req.params;
+        const userId = req.user.id;
+
+        const doubt = await Doubt.findById(id);
+        if (!doubt) {
+            return res.status(404).json({ error: 'Doubt not found' });
+        }
+
+        const answer = doubt.answers.id(answerId);
+        if (!answer) {
+            return res.status(404).json({ error: 'Answer not found' });
+        }
+
+        // Check if already upvoted
+        const index = answer.upvotes.indexOf(userId);
+        if (index === -1) {
+            // Not upvoted -> Upvote
+            answer.upvotes.push(userId);
+        } else {
+            // Already upvoted -> Remove upvote
+            answer.upvotes.splice(index, 1);
+        }
+
+        await doubt.save();
+
+        // Populate before returning
+        await doubt.populate('author', 'username');
+        await doubt.populate('answers.author', 'username');
+
+        res.json(doubt);
+    } catch (error) {
+        console.error('Error upvoting answer:', error);
         res.status(500).json({ error: 'Internal server error' });
     }
 });

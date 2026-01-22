@@ -114,6 +114,17 @@ app.get('/api/districts', async (req, res) => {
   }
 });
 
+// Get single district
+app.get('/api/districts/:id', async (req, res) => {
+  try {
+    const district = await District.findById(req.params.id);
+    if (!district) return res.status(404).json({ error: 'District not found' });
+    res.json(district);
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
+});
+
 // Get messages for a district
 app.get('/api/districts/:id/messages', async (req, res) => {
   try {

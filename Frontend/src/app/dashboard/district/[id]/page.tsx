@@ -11,11 +11,13 @@ interface Message {
     username: string;
     content: string;
     userId: string;
+    createdAt?: string;
 }
 
 export default function DistrictChat() {
     const { id } = useParams();
     const [messages, setMessages] = useState<Message[]>([]);
+    const [district, setDistrict] = useState<any>(null);
     const [input, setInput] = useState("");
     const [currentUser, setCurrentUser] = useState<any>(null);
     const scrollRef = useRef<HTMLDivElement>(null);
@@ -25,22 +27,18 @@ export default function DistrictChat() {
         const userStr = localStorage.getItem("user");
         if (userStr) setCurrentUser(JSON.parse(userStr));
 
+        // Load District Details
+        api.get(`/districts/${id}`).then(res => setDistrict(res.data)).catch(console.error);
+
         // Load History
         api.get(`/districts/${id}/messages`)
             .then(res => {
-                // Map backend response if needed, but backend sends { content, user: { username } } or populated.
-                // My backend sends: { content, user: { ... }, ... } because I used .populate('user')
-                // Wait, in Server.js I did: .populate('user', 'username')
-                // So the message object has msg.user.username
-                // But the interface and socket event expects flat structure: { username, content, userId }
-                // I need to transform the history data to match the state usage, OR update the rendering.
-
-                // Let's transform:
                 const history = res.data.map((m: any) => ({
                     _id: m._id,
                     content: m.content,
-                    userId: m.user?._id || m.user, // handle populated or not
-                    username: m.user?.username || 'Unknown'
+                    userId: m.user?._id || m.user,
+                    username: m.user?.username || 'Unknown',
+                    createdAt: m.createdAt
                 }));
                 setMessages(history);
                 scrollToBottom();
@@ -78,10 +76,6 @@ export default function DistrictChat() {
         };
 
         socket.emit("send_message", data);
-        // Optimistic update? Socket will echo it back in this simple implementation, so wait for echo 
-        // actually our server implementation broadcasts to room. sender is in room. so we will receive it.
-        // However, usually sender wants instant feedback.
-        // For now rely on echo.
         setInput("");
     };
 
@@ -92,7 +86,10 @@ export default function DistrictChat() {
                     <ArrowLeft size={20} />
                 </Link>
                 <div>
-                    <h1 className="font-bold text-lg">District Channel #{id}</h1>
+                    <h1 className="font-bold text-lg flex items-center gap-2">
+                        {district ? district.name : `District #${id}`}
+                        {district && <span className="text-xl">{district.icon}</span>}
+                    </h1>
                     <div className="flex items-center gap-2">
                         <span className="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
                         <span className="text-xs text-green-500 uppercase tracking-wider">Live Signal</span>
@@ -107,7 +104,12 @@ export default function DistrictChat() {
                         <div key={idx} className={`flex ${isMe ? "justify-end" : "justify-start"}`}>
                             <div className={`max-w-[80%] rounded-2xl px-4 py-2 ${isMe ? "bg-primary text-white" : "bg-white/10 text-gray-200"
                                 }`}>
-                                {!isMe && <div className="text-xs opacity-50 mb-1">{msg.username}</div>}
+                                <div className="flex items-baseline gap-2 mb-1">
+                                    {!isMe && <span className="text-xs font-bold opacity-75">{msg.username}</span>}
+                                    <span className="text-[10px] opacity-50">
+                                        {msg.createdAt ? new Date(msg.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : ''}
+                                    </span>
+                                </div>
                                 <p>{msg.content}</p>
                             </div>
                         </div>
