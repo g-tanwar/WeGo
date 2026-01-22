@@ -160,11 +160,15 @@ export default function DoubtDetail() {
                         </div>
 
                         <div className="flex items-center gap-3 mb-6">
-                            <div className="w-10 h-10 rounded-full bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center text-white font-bold">
-                                {doubt.author.username[0].toUpperCase()}
-                            </div>
+                            <Link href={`/dashboard/profile/${doubt.author.username}`}>
+                                <div className="w-10 h-10 rounded-full bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center text-white font-bold hover:scale-105 transition-transform">
+                                    {doubt.author.username[0].toUpperCase()}
+                                </div>
+                            </Link>
                             <div>
-                                <div className="font-semibold text-gray-200">{doubt.author.username}</div>
+                                <Link href={`/dashboard/profile/${doubt.author.username}`} className="hover:underline hover:text-purple-300 transition-colors">
+                                    <div className="font-semibold text-gray-200">{doubt.author.username}</div>
+                                </Link>
                                 <div className="text-xs text-gray-500">{new Date(doubt.createdAt).toLocaleDateString()}</div>
                             </div>
                         </div>
@@ -220,14 +224,18 @@ export default function DoubtDetail() {
 
                                             <div className="flex-1">
                                                 <div className="flex items-start gap-3">
-                                                    <div className="mt-1 w-8 h-8 rounded-full bg-white/10 flex items-center justify-center text-xs shrink-0">
-                                                        {answer.author.username[0].toUpperCase()}
-                                                    </div>
+                                                    <Link href={`/dashboard/profile/${answer.author.username}`}>
+                                                        <div className="mt-1 w-8 h-8 rounded-full bg-white/10 flex items-center justify-center text-xs shrink-0 hover:bg-purple-600 transition-colors">
+                                                            {answer.author.username[0].toUpperCase()}
+                                                        </div>
+                                                    </Link>
                                                     <div className="flex-1">
                                                         <div className="flex justify-between items-start mb-2">
-                                                            <span className="font-semibold text-sm text-gray-300">
-                                                                @{answer.author.username}
-                                                            </span>
+                                                            <Link href={`/dashboard/profile/${answer.author.username}`} className="hover:underline">
+                                                                <span className="font-semibold text-sm text-gray-300 hover:text-purple-300 transition-colors">
+                                                                    @{answer.author.username}
+                                                                </span>
+                                                            </Link>
                                                             <span className="text-xs text-gray-600">
                                                                 {new Date(answer.createdAt).toLocaleDateString()}
                                                             </span>

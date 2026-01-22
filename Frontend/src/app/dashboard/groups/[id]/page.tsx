@@ -166,7 +166,11 @@ export default function GroupDetail() {
                                 <div className={`max-w-[75%] rounded-2xl px-5 py-3 ${isMe ? "bg-purple-600 text-white" : "bg-white/10 text-gray-200"
                                     }`}>
                                     <div className="flex items-baseline gap-2 mb-1">
-                                        {!isMe && <span className="text-xs font-bold opacity-75">{msg.username}</span>}
+                                        {!isMe && (
+                                            <Link href={`/dashboard/profile/${msg.username}`} className="hover:underline">
+                                                <span className="text-xs font-bold opacity-75">{msg.username}</span>
+                                            </Link>
+                                        )}
                                         <span className="text-[10px] opacity-50">
                                             {msg.createdAt ? new Date(msg.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : ''}
                                         </span>
@@ -223,14 +227,14 @@ export default function GroupDetail() {
                     <h3 className="font-bold text-sm text-gray-500 uppercase tracking-wider mb-4">Members</h3>
                     <div className="space-y-3 mb-8">
                         {group.members.map(member => (
-                            <div key={member._id} className="flex items-center gap-3">
+                            <Link key={member._id} href={`/dashboard/profile/${member.username}`} className="flex items-center gap-3 hover:bg-white/5 p-2 rounded-lg transition-colors">
                                 <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-purple-500 to-pink-500 flex items-center justify-center text-xs font-bold">
                                     {member.username[0].toUpperCase()}
                                 </div>
                                 <span className="text-sm text-gray-300">
                                     {member.username} {member._id === group.creator._id && <span className="text-xs text-purple-400 ml-1">(Owner)</span>}
                                 </span>
-                            </div>
+                            </Link>
                         ))}
                     </div>
 

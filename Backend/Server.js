@@ -14,6 +14,7 @@ const User = require('./src/models/User');
 const authRoutes = require('./src/routes/auth');
 const doubtRoutes = require('./src/routes/doubts');
 const groupRoutes = require('./src/routes/groups');
+const userRoutes = require('./src/routes/users');
 
 // Connect to DB
 connectDB();
@@ -33,6 +34,7 @@ app.use(express.json());
 app.use('/api/auth', authRoutes);
 app.use('/api/doubts', doubtRoutes);
 app.use('/api/groups', groupRoutes);
+app.use('/api/users', userRoutes);
 
 // Socket.io logic
 io.on('connection', (socket) => {

@@ -12,6 +12,8 @@ interface District {
     icon: string;
 }
 
+import ProfileButton from "@/components/ProfileButton";
+
 export default function Dashboard() {
     const [districts, setDistricts] = useState<District[]>([]);
 
@@ -39,10 +41,7 @@ export default function Dashboard() {
                             Study Groups
                         </button>
                     </Link>
-                    {/* Future: Profile link */}
-                    <div className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center">
-                        <LayoutGrid size={20} />
-                    </div>
+                    <ProfileButton />
                 </div>
             </header>
 

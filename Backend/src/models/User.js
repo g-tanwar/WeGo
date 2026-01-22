@@ -20,7 +20,19 @@ const userSchema = new mongoose.Schema({
         type: String,
         enum: ['student', 'tutor', 'admin'],
         default: 'student'
-    }
+    },
+    bio: {
+        type: String,
+        default: ''
+    },
+    skills: [{
+        type: String,
+        trim: true
+    }],
+    joinedGroups: [{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Group'
+    }]
 }, {
     timestamps: true
 });

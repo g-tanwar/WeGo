@@ -18,6 +18,8 @@ interface Doubt {
     };
 }
 
+import ProfileButton from "@/components/ProfileButton";
+
 export default function DoubtBoard() {
     const [doubts, setDoubts] = useState<Doubt[]>([]);
     const [loading, setLoading] = useState(true);
@@ -52,7 +54,7 @@ export default function DoubtBoard() {
                     <p className="text-gray-400 mt-2">Solve problems together, grow faster.</p>
                 </div>
 
-                <div className="flex gap-4 w-full md:w-auto flex-wrap">
+                <div className="flex gap-4 w-full md:w-auto items-center flex-wrap">
                     {/* Sort Dropdown */}
                     <div className="bg-white/5 border border-white/10 rounded-xl px-4 py-2 relative flex items-center">
                         <select
@@ -84,9 +86,11 @@ export default function DoubtBoard() {
                     <Link href="/dashboard/doubts/new">
                         <button className="flex items-center gap-2 bg-purple-600 hover:bg-purple-700 text-white px-5 py-2.5 rounded-xl font-medium transition-all transform hover:scale-105 active:scale-95 shadow-lg shadow-purple-500/25">
                             <Plus size={18} />
-                            <span>Ask Doubt</span>
+                            <span className="hidden md:inline">Ask Doubt</span>
                         </button>
                     </Link>
+
+                    <ProfileButton />
                 </div>
             </header>
 
@@ -112,9 +116,13 @@ export default function DoubtBoard() {
                                     <div className="relative flex flex-col md:flex-row gap-4 justify-between md:items-start">
                                         <div className="flex-1">
                                             <div className="flex items-center gap-3 mb-2">
-                                                <span className="text-xs font-semibold text-purple-400 bg-purple-500/10 px-2 py-1 rounded-md border border-purple-500/20">
+                                                <Link
+                                                    href={`/dashboard/profile/${doubt.author?.username || 'Anonymous'}`}
+                                                    onClick={(e) => e.stopPropagation()}
+                                                    className="text-xs font-semibold text-purple-400 bg-purple-500/10 px-2 py-1 rounded-md border border-purple-500/20 hover:bg-purple-500/20 transition-colors"
+                                                >
                                                     @{doubt.author?.username || 'Anonymous'}
-                                                </span>
+                                                </Link>
                                                 <span className="text-xs text-gray-500">
                                                     {new Date(doubt.createdAt).toLocaleDateString()}
                                                 </span>
