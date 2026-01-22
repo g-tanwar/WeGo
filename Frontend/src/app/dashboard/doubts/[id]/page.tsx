@@ -192,7 +192,12 @@ export default function DoubtDetail() {
                         </h3>
 
                         <div className="space-y-4">
-                            {doubt.answers.map((answer, i) => {
+                            {[...doubt.answers].sort((a, b) => {
+                                const upvotesA = a.upvotes?.length || 0;
+                                const upvotesB = b.upvotes?.length || 0;
+                                if (upvotesA !== upvotesB) return upvotesB - upvotesA;
+                                return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+                            }).map((answer, i) => {
                                 const isAnsUpvoted = currentUser && answer.upvotes.includes(currentUser.id);
                                 return (
                                     <motion.div

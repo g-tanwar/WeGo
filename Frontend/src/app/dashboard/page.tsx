@@ -29,6 +29,16 @@ export default function Dashboard() {
                     <p className="text-gray-400">Select a district to visit</p>
                 </div>
                 <div className="flex items-center gap-4">
+                    <Link href="/dashboard/doubts">
+                        <button className="px-4 py-2 rounded-lg bg-white/5 hover:bg-white/10 transition-colors text-sm font-medium">
+                            Doubt Board
+                        </button>
+                    </Link>
+                    <Link href="/dashboard/groups">
+                        <button className="px-4 py-2 rounded-lg bg-white/5 hover:bg-white/10 transition-colors text-sm font-medium">
+                            Study Groups
+                        </button>
+                    </Link>
                     {/* Future: Profile link */}
                     <div className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center">
                         <LayoutGrid size={20} />

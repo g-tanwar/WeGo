@@ -29,21 +29,29 @@ router.post('/', authenticate, async (req, res) => {
     }
 });
 
-// GET /api/doubts - List all doubts (newest first, optional tag filter)
+// GET /api/doubts - List all doubts
 router.get('/', async (req, res) => {
     try {
-        const { tag } = req.query;
+        const { tag, sort } = req.query;
 
         let query = {};
         if (tag) {
-            // Case-insensitive search inside the tags array
             query.tags = { $in: [new RegExp(`^${tag}$`, 'i')] };
         }
 
-        const doubts = await Doubt.find(query, 'title description tags upvotes answers createdAt author')
-            .sort({ createdAt: -1 }) // Newest first
-            .populate('author', 'username') // Show who asked
-            .populate('answers.author', 'username'); // Show who answered
+        let doubts = await Doubt.find(query, 'title description tags upvotes answers createdAt author')
+            .populate('author', 'username')
+            .populate('answers.author', 'username');
+
+        // Sorting logic
+        if (sort === 'upvoted') {
+            doubts.sort((a, b) => b.upvotes.length - a.upvotes.length);
+        } else if (sort === 'answered') {
+            doubts.sort((a, b) => b.answers.length - a.answers.length);
+        } else {
+            // Default: recent
+            doubts.sort((a, b) => b.createdAt - a.createdAt);
+        }
 
         res.json(doubts);
     } catch (error) {
@@ -62,6 +70,15 @@ router.get('/:id', async (req, res) => {
         if (!doubt) {
             return res.status(404).json({ error: 'Doubt not found' });
         }
+
+        // Sort answers: Most upvotes first, then newest
+        doubt.answers.sort((a, b) => {
+            const upvotesA = a.upvotes ? a.upvotes.length : 0;
+            const upvotesB = b.upvotes ? b.upvotes.length : 0;
+            if (upvotesA !== upvotesB) return upvotesB - upvotesA;
+            return b.createdAt - a.createdAt;
+        });
+
         res.json(doubt);
     } catch (error) {
         console.error('Error fetching doubt:', error);
