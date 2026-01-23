@@ -30,7 +30,7 @@ router.post('/', authenticate, async (req, res) => {
 });
 
 // GET /api/groups - List all groups
-router.get('/', async (req, res) => {
+router.get('/', authenticate, async (req, res) => {
     try {
         const groups = await Group.find()
             .populate('creator', 'username')
@@ -42,7 +42,7 @@ router.get('/', async (req, res) => {
 });
 
 // GET /api/groups/:id - Get single group
-router.get('/:id', async (req, res) => {
+router.get('/:id', authenticate, async (req, res) => {
     try {
         const group = await Group.findById(req.params.id)
             .populate('creator', 'username')
@@ -93,15 +93,31 @@ router.post('/:id/leave', authenticate, async (req, res) => {
 });
 
 // GET /api/groups/:id/messages - Get chat history for a group
-router.get('/:id/messages', async (req, res) => {
+router.get('/:id/messages', authenticate, async (req, res) => {
     try {
-        // Reuse Message model but filter by districtId (we'll reuse districtId field for groupId for now, or add groupId)
-        // Ideally we should update Message model to support groupId, but for MVP we can treat groupId as districtId
         const Message = require('../models/Message');
-        const messages = await Message.find({ districtId: req.params.id })
+        const messages = await Message.find({ group: req.params.id })
             .populate('user', 'username')
             .sort({ createdAt: 1 });
         res.json(messages);
+    } catch (e) {
+        res.status(500).json({ error: e.message });
+    }
+});
+
+// DELETE /api/groups/:id - Delete a group
+router.delete('/:id', authenticate, async (req, res) => {
+    try {
+        const group = await Group.findById(req.params.id);
+        if (!group) return res.status(404).json({ error: 'Group not found' });
+
+        // Check if user is creator
+        if (group.creator.toString() !== req.user.id) {
+            return res.status(403).json({ error: 'Not authorized to delete this group' });
+        }
+
+        await group.deleteOne();
+        res.json({ message: 'Group deleted successfully' });
     } catch (e) {
         res.status(500).json({ error: e.message });
     }

@@ -13,9 +13,13 @@ const messageSchema = new mongoose.Schema({
     district: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'District',
-        required: true
+        required: false
     },
-    // Optional param from old schema, keeping for compatibility if needed, though likely unused
+    group: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Group',
+        required: false
+    },
     param: {
         type: String
     }

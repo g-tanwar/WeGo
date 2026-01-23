@@ -19,6 +19,7 @@ interface Group {
     _id: string;
     name: string;
     description: string;
+    tags: string[];
     members: { _id: string; username: string }[];
     creator: { _id: string; username: string };
 }
@@ -35,7 +36,11 @@ export default function GroupDetail() {
 
     useEffect(() => {
         const userStr = localStorage.getItem("user");
-        if (userStr) setCurrentUser(JSON.parse(userStr));
+        if (!userStr) {
+            router.push('/auth/login');
+            return;
+        }
+        setCurrentUser(JSON.parse(userStr));
 
         if (id) {
             fetchGroupDetails();
@@ -44,8 +49,8 @@ export default function GroupDetail() {
         }
 
         return () => {
-            socket.off("receive_message");
-            socket.emit("leave_district", id); // We reuse district logic for rooms
+            socket.off("receive_group_message");
+            socket.emit("leave_group", id);
             // socket.disconnect(); // Keep connection alive for other pages
         };
     }, [id]);
@@ -54,8 +59,11 @@ export default function GroupDetail() {
         try {
             const res = await api.get(`/groups/${id}`);
             setGroup(res.data);
-        } catch (err) {
+        } catch (err: any) {
             console.error(err);
+            if (err.response?.status === 401) {
+                router.push('/auth/login');
+            }
         }
     };
 
@@ -78,8 +86,8 @@ export default function GroupDetail() {
 
     const connectSocket = () => {
         socket.connect();
-        socket.emit("join_district", id); // Reuse district room logic
-        socket.on("receive_message", (data: Message) => {
+        socket.emit("join_group", id);
+        socket.on("receive_group_message", (data: Message) => {
             setMessages((prev) => [...prev, data]);
             scrollToBottom();
         });
@@ -94,13 +102,13 @@ export default function GroupDetail() {
         if (!input.trim() || !currentUser) return;
 
         const data = {
-            districtId: id, // Reuse districtId for groupId
+            groupId: id,
             userId: currentUser.id,
             username: currentUser.username,
             content: input
         };
 
-        socket.emit("send_message", data);
+        socket.emit("send_group_message", data);
         setInput("");
     };
 
@@ -121,6 +129,17 @@ export default function GroupDetail() {
             router.push('/dashboard'); // Optional: Redirect or stay and show "Join" button
         } catch (err) {
             console.error("Failed to leave", err);
+        }
+    };
+
+    const handleDelete = async () => {
+        if (!confirm("Are you sure you want to delete this group? This action cannot be undone.")) return;
+        try {
+            await api.delete(`/groups/${id}`);
+            router.push('/dashboard');
+        } catch (err: any) {
+            console.error("Failed to delete", err);
+            alert(err.response?.data?.error || "Failed to delete group");
         }
     };
 
@@ -224,6 +243,16 @@ export default function GroupDetail() {
                         {group.description}
                     </p>
 
+                    {group.tags && group.tags.length > 0 && (
+                        <div className="flex flex-wrap gap-2 mb-6">
+                            {group.tags.map((tag, i) => (
+                                <span key={i} className="bg-white/10 text-xs px-2 py-1 rounded-full text-gray-300">
+                                    #{tag}
+                                </span>
+                            ))}
+                        </div>
+                    )}
+
                     <h3 className="font-bold text-sm text-gray-500 uppercase tracking-wider mb-4">Members</h3>
                     <div className="space-y-3 mb-8">
                         {group.members.map(member => (
@@ -244,6 +273,15 @@ export default function GroupDetail() {
                             className="w-full py-2 rounded-xl border border-red-500/20 text-red-400 hover:bg-red-500/10 transition-colors text-sm font-medium"
                         >
                             Leave Group
+                        </button>
+                    )}
+
+                    {group.creator._id === currentUser?.id && (
+                        <button
+                            onClick={handleDelete}
+                            className="w-full py-2 rounded-xl border border-red-500/20 text-red-500 hover:bg-red-500/10 transition-colors text-sm font-medium"
+                        >
+                            Delete Group
                         </button>
                     )}
                 </div>

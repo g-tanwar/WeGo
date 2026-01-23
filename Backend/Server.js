@@ -9,6 +9,7 @@ const connectDB = require('./src/config/db');
 const District = require('./src/models/District');
 const Message = require('./src/models/Message');
 const User = require('./src/models/User');
+const Group = require('./src/models/Group');
 
 // Routes
 const authRoutes = require('./src/routes/auth');
@@ -52,33 +53,67 @@ io.on('connection', (socket) => {
     try {
       const { districtId, userId, content, username } = data;
 
-      // Save to MongoDB
-      // Ensure districtId and userId are valid ObjectIds if your logic enforces it, 
-      // but for now we trust the client or validation layers.
-
       const newMessage = await Message.create({
         content,
         user: userId,
         district: districtId
       });
 
-      // Populate user info for the client
-      // const populatedMsg = await newMessage.populate('user', 'username'); 
-      // We can also just send back what we have if client is optimistic/simple.
+      const messageToSend = {
+        _id: newMessage._id,
+        content: newMessage.content,
+        userId: userId,
+        username: username,
+        districtId: districtId,
+        createdAt: newMessage.createdAt
+      };
+
+      io.to(`district_${districtId}`).emit('receive_message', messageToSend);
+    } catch (e) {
+      console.error('Error saving message:', e);
+    }
+  });
+
+  // Group Chat Logic
+  socket.on('join_group', async (groupId) => {
+    socket.join(`group_${groupId}`);
+    console.log(`User ${socket.id} joined group_${groupId}`);
+  });
+
+  socket.on('leave_group', async (groupId) => {
+    socket.leave(`group_${groupId}`);
+    console.log(`User ${socket.id} left group_${groupId}`);
+  });
+
+  socket.on('send_group_message', async (data) => {
+    // data: { groupId, userId, content, username }
+    try {
+      const { groupId, userId, content, username } = data;
+
+      // Check membership
+      const group = await Group.findById(groupId);
+      if (!group || !group.members.some(m => m.toString() === userId)) {
+        return console.log(`Unauthorized message attempt in group ${groupId}`);
+      }
+
+      const newMessage = await Message.create({
+        content,
+        user: userId,
+        group: groupId
+      });
 
       const messageToSend = {
         _id: newMessage._id,
         content: newMessage.content,
         userId: userId,
-        username: username, // Client sent this, handy to echo back for display without extensive DB lookups
-        districtId: districtId,
+        username: username,
+        groupId: groupId,
         createdAt: newMessage.createdAt
       };
 
-      // Broadcast to room
-      io.to(`district_${districtId}`).emit('receive_message', messageToSend);
+      io.to(`group_${groupId}`).emit('receive_group_message', messageToSend);
     } catch (e) {
-      console.error('Error saving message:', e);
+      console.error('Error saving group message:', e);
     }
   });
 
