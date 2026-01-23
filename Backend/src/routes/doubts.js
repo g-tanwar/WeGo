@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const Doubt = require('../models/Doubt');
 const { authenticate } = require('../middleware/auth');
+const { createNotification } = require('../utils/notifications');
 
 // POST /api/doubts - Create a new doubt
 router.post('/', authenticate, async (req, res) => {
@@ -109,6 +110,15 @@ router.post('/:id/answer', authenticate, async (req, res) => {
         doubt.answers.push(newAnswer);
         await doubt.save();
 
+        // Create Notification for doubt author
+        await createNotification({
+            recipient: doubt.author,
+            sender: req.user.id,
+            type: 'answer',
+            content: `answered your doubt: "${doubt.title.substring(0, 30)}${doubt.title.length > 30 ? '...' : ''}"`,
+            link: `/dashboard/doubts/${id}`
+        });
+
         // Return the updated doubt with populated fields
         await doubt.populate('author', 'username');
         await doubt.populate('answers.author', 'username');
@@ -136,6 +146,15 @@ router.post('/:id/upvote', authenticate, async (req, res) => {
         if (index === -1) {
             // Not upvoted -> Upvote
             doubt.upvotes.push(userId);
+
+            // Create Notification
+            await createNotification({
+                recipient: doubt.author,
+                sender: userId,
+                type: 'upvote',
+                content: `upvoted your doubt: "${doubt.title.substring(0, 30)}${doubt.title.length > 30 ? '...' : ''}"`,
+                link: `/dashboard/doubts/${id}`
+            });
         } else {
             // Already upvoted -> Remove upvote
             doubt.upvotes.splice(index, 1);
@@ -175,6 +194,15 @@ router.post('/:id/answers/:answerId/upvote', authenticate, async (req, res) => {
         if (index === -1) {
             // Not upvoted -> Upvote
             answer.upvotes.push(userId);
+
+            // Create Notification
+            await createNotification({
+                recipient: answer.author,
+                sender: userId,
+                type: 'upvote',
+                content: `upvoted your answer in "${doubt.title.substring(0, 30)}${doubt.title.length > 30 ? '...' : ''}"`,
+                link: `/dashboard/doubts/${id}`
+            });
         } else {
             // Already upvoted -> Remove upvote
             answer.upvotes.splice(index, 1);

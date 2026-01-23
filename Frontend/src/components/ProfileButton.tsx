@@ -17,7 +17,7 @@ export default function ProfileButton() {
 
     return (
         <Link href={`/dashboard/profile/${user.username}`}>
-            <div className="flex items-center gap-3 pl-4 border-l border-white/10 group cursor-pointer">
+            <div className="flex items-center gap-3 group cursor-pointer">
                 <div className="text-right hidden md:block">
                     <div className="text-sm font-bold text-white group-hover:text-purple-400 transition-colors">
                         {user.username}

@@ -3,7 +3,8 @@ import { useEffect, useState } from "react";
 import api from "@/lib/api";
 import Link from "next/link";
 import { motion } from "framer-motion";
-import { MessageCircle, ThumbsUp, Tag, Plus, Search } from "lucide-react";
+import { MessageCircle, ThumbsUp, Tag, Plus, Search, HelpCircle } from "lucide-react";
+import { DoubtSkeleton } from "@/components/Skeleton";
 
 interface Doubt {
     _id: string;
@@ -18,7 +19,6 @@ interface Doubt {
     };
 }
 
-import ProfileButton from "@/components/ProfileButton";
 
 export default function DoubtBoard() {
     const [doubts, setDoubts] = useState<Doubt[]>([]);
@@ -89,15 +89,15 @@ export default function DoubtBoard() {
                             <span className="hidden md:inline">Ask Doubt</span>
                         </button>
                     </Link>
-
-                    <ProfileButton />
                 </div>
             </header>
 
             {/* Content */}
             {loading ? (
-                <div className="flex justify-center py-20">
-                    <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-purple-500"></div>
+                <div className="grid grid-cols-1 gap-4">
+                    {[...Array(5)].map((_, i) => (
+                        <DoubtSkeleton key={i} />
+                    ))}
                 </div>
             ) : (
                 <div className="grid grid-cols-1 gap-4">
@@ -164,10 +164,18 @@ export default function DoubtBoard() {
                     ))}
 
                     {doubts.length === 0 && (
-                        <div className="text-center py-20 text-gray-500">
-                            <p className="text-lg">No doubts found.</p>
-                            <p className="text-sm">Be the first to ask!</p>
-                        </div>
+                        <motion.div
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            className="text-center py-20 bg-white/5 border border-dashed border-white/10 rounded-3xl"
+                        >
+                            <HelpCircle size={48} className="mx-auto mb-4 text-gray-600" />
+                            <p className="text-xl font-bold text-gray-100">No doubts found</p>
+                            <p className="text-gray-500 mt-2">Be the first to ask a question and start a discussion!</p>
+                            <Link href="/dashboard/doubts/new">
+                                <button className="mt-6 px-6 py-2 bg-purple-600 rounded-xl text-sm font-bold shadow-lg shadow-purple-500/20">Ask Doubt</button>
+                            </Link>
+                        </motion.div>
                     )}
                 </div>
             )}

@@ -10,8 +10,9 @@ import {
   Tag,
   Search,
   ArrowRight,
+  PlusCircle,
 } from "lucide-react";
-import ProfileButton from "@/components/ProfileButton";
+import { CardSkeleton } from "@/components/Skeleton";
 
 interface Group {
   _id: string;
@@ -81,15 +82,15 @@ export default function GroupsList() {
               Create Group
             </button>
           </Link>
-
-          <ProfileButton />
         </div>
       </header>
 
       {/* Content */}
       {loading ? (
-        <div className="flex justify-center py-20">
-          <div className="animate-spin rounded-full h-10 w-10 border-t-2 border-purple-500" />
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {[...Array(6)].map((_, i) => (
+            <CardSkeleton key={i} />
+          ))}
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -138,9 +139,22 @@ export default function GroupsList() {
           ))}
 
           {filteredGroups.length === 0 && (
-            <div className="col-span-full text-center py-20 text-gray-500">
-              No groups found. Create one 🚀
-            </div>
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              className="col-span-full text-center py-20 bg-white/5 border border-dashed border-white/10 rounded-3xl"
+            >
+              <PlusCircle size={48} className="mx-auto mb-4 text-gray-600" />
+              <p className="text-xl font-bold text-gray-100">No groups found</p>
+              <p className="text-gray-500 mt-2">
+                {searchTerm ? `No results for "${searchTerm}"` : "Be the first to create a tribe here!"}
+              </p>
+              {!searchTerm && (
+                <Link href="/dashboard/groups/new">
+                  <button className="mt-6 px-6 py-2 bg-purple-600 rounded-xl text-sm font-bold">Create Group</button>
+                </Link>
+              )}
+            </motion.div>
           )}
         </div>
       )}

@@ -148,7 +148,7 @@ export default function GroupDetail() {
     const isMember = currentUser && group.members.some(m => m._id === currentUser.id);
 
     return (
-        <div className="flex h-screen bg-black overflow-hidden relative">
+        <div className="flex h-screen overflow-hidden relative">
             {/* Main Chat Area */}
             <div className="flex-1 flex flex-col h-full relative z-10">
                 {/* Header */}

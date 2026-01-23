@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const Group = require('../models/Group');
 const { authenticate } = require('../middleware/auth');
+const { createNotification } = require('../utils/notifications');
 
 // POST /api/groups - Create a new study group
 router.post('/', authenticate, async (req, res) => {
@@ -66,6 +67,15 @@ router.post('/:id/join', authenticate, async (req, res) => {
 
         group.members.push(req.user.id);
         await group.save();
+
+        // Create Notification for group creator
+        await createNotification({
+            recipient: group.creator,
+            sender: req.user.id,
+            type: 'join',
+            content: `joined your group: "${group.name}"`,
+            link: `/dashboard/groups/${req.params.id}`
+        });
 
         await group.populate('members', 'username');
         res.json(group);

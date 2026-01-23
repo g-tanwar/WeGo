@@ -16,6 +16,7 @@ const authRoutes = require('./src/routes/auth');
 const doubtRoutes = require('./src/routes/doubts');
 const groupRoutes = require('./src/routes/groups');
 const userRoutes = require('./src/routes/users');
+const notificationRoutes = require('./src/routes/notifications');
 
 // Connect to DB
 connectDB();
@@ -36,6 +37,7 @@ app.use('/api/auth', authRoutes);
 app.use('/api/doubts', doubtRoutes);
 app.use('/api/groups', groupRoutes);
 app.use('/api/users', userRoutes);
+app.use('/api/notifications', notificationRoutes);
 
 // Socket.io logic
 io.on('connection', (socket) => {
