@@ -43,7 +43,11 @@ const doubtSchema = new mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: 'User'
     }],
-    answers: [answerSchema]
+    answers: [answerSchema],
+    acceptedAnswer: {
+        type: mongoose.Schema.Types.ObjectId,
+        default: null
+    }
 }, {
     timestamps: true
 });

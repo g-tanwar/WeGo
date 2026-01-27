@@ -17,6 +17,7 @@ const doubtRoutes = require('./src/routes/doubts');
 const groupRoutes = require('./src/routes/groups');
 const userRoutes = require('./src/routes/users');
 const notificationRoutes = require('./src/routes/notifications');
+const uploadRoutes = require('./src/routes/upload');
 
 // Connect to DB
 connectDB();
@@ -38,6 +39,7 @@ app.use('/api/doubts', doubtRoutes);
 app.use('/api/groups', groupRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/notifications', notificationRoutes);
+app.use('/api/upload', uploadRoutes);
 
 // Socket.io logic
 io.on('connection', (socket) => {
@@ -46,19 +48,18 @@ io.on('connection', (socket) => {
   socket.on('join_district', async (districtId) => {
     socket.join(`district_${districtId}`);
     console.log(`User ${socket.id} joined district_${districtId}`);
-
-    // Optional: Emit previous messages here if needed, or let client fetch via API
   });
 
   socket.on('send_message', async (data) => {
-    // data: { districtId, userId, content, username }
     try {
-      const { districtId, userId, content, username } = data;
+      const { districtId, userId, content, username, mediaUrl, mediaType } = data;
 
       const newMessage = await Message.create({
         content,
         user: userId,
-        district: districtId
+        district: districtId,
+        mediaUrl,
+        mediaType
       });
 
       const messageToSend = {
@@ -67,6 +68,8 @@ io.on('connection', (socket) => {
         userId: userId,
         username: username,
         districtId: districtId,
+        mediaUrl: newMessage.mediaUrl,
+        mediaType: newMessage.mediaType,
         createdAt: newMessage.createdAt
       };
 
@@ -88,9 +91,8 @@ io.on('connection', (socket) => {
   });
 
   socket.on('send_group_message', async (data) => {
-    // data: { groupId, userId, content, username }
     try {
-      const { groupId, userId, content, username } = data;
+      const { groupId, userId, content, username, mediaUrl, mediaType } = data;
 
       // Check membership
       const group = await Group.findById(groupId);
@@ -101,7 +103,9 @@ io.on('connection', (socket) => {
       const newMessage = await Message.create({
         content,
         user: userId,
-        group: groupId
+        group: groupId,
+        mediaUrl,
+        mediaType
       });
 
       const messageToSend = {
@@ -110,6 +114,8 @@ io.on('connection', (socket) => {
         userId: userId,
         username: username,
         groupId: groupId,
+        mediaUrl: newMessage.mediaUrl,
+        mediaType: newMessage.mediaType,
         createdAt: newMessage.createdAt
       };
 
@@ -126,7 +132,6 @@ io.on('connection', (socket) => {
 
 // Simple protected test route
 const jwt = require('jsonwebtoken');
-// Middleware for simple token check (inline for now or import)
 const authenticate = (req, res, next) => {
   const authHeader = req.headers.authorization;
   if (authHeader) {

@@ -22,6 +22,15 @@ const messageSchema = new mongoose.Schema({
     },
     param: {
         type: String
+    },
+    mediaUrl: {
+        type: String,
+        required: false
+    },
+    mediaType: {
+        type: String,
+        enum: ['image', 'video'],
+        required: false
     }
 }, {
     timestamps: true

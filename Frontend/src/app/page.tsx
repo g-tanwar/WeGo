@@ -1,6 +1,8 @@
 "use client";
 import Link from "next/link";
 import { motion } from "framer-motion";
+import { CldImage } from 'next-cloudinary';
+
 
 export default function Home() {
   return (

@@ -3,13 +3,14 @@ import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import api from "@/lib/api";
 import Link from "next/link";
-import { ArrowLeft, MessageCircle, ArrowBigUp, Tag, Send, User } from "lucide-react";
+import { ArrowLeft, MessageCircle, ArrowBigUp, Tag, Send, User, CheckCircle, Check } from "lucide-react";
 import { motion } from "framer-motion";
 
 interface Answer {
     _id: string;
     content: string;
     author: {
+        _id: string;
         username: string;
     };
     upvotes: string[];
@@ -25,8 +26,10 @@ interface Doubt {
     answers: Answer[];
     createdAt: string;
     author: {
+        _id: string;
         username: string;
     };
+    acceptedAnswer: string | null;
 }
 
 export default function DoubtDetail() {
@@ -99,6 +102,16 @@ export default function DoubtDetail() {
             await api.post(`/doubts/${id}/answers/${answerId}/upvote`);
         } catch (error) {
             console.error("Failed to upvote answer", error);
+        }
+    };
+
+    const handleAcceptAnswer = async (answerId: string) => {
+        if (!doubt || !currentUser) return;
+        try {
+            const res = await api.post(`/doubts/${id}/accept/${answerId}`);
+            setDoubt(res.data);
+        } catch (error) {
+            console.error("Failed to accept answer", error);
         }
     };
 
@@ -197,6 +210,11 @@ export default function DoubtDetail() {
 
                         <div className="space-y-4">
                             {[...doubt.answers].sort((a, b) => {
+                                // Accepted answer first
+                                if (doubt.acceptedAnswer) {
+                                    if (a._id === doubt.acceptedAnswer) return -1;
+                                    if (b._id === doubt.acceptedAnswer) return 1;
+                                }
                                 const upvotesA = a.upvotes?.length || 0;
                                 const upvotesB = b.upvotes?.length || 0;
                                 if (upvotesA !== upvotesB) return upvotesB - upvotesA;
@@ -209,7 +227,10 @@ export default function DoubtDetail() {
                                         initial={{ opacity: 0, x: -20 }}
                                         animate={{ opacity: 1, x: 0 }}
                                         transition={{ delay: i * 0.1 }}
-                                        className="bg-black/40 border border-white/5 rounded-2xl p-6"
+                                        className={`bg-black/40 border rounded-2xl p-6 transition-all duration-500 ${doubt.acceptedAnswer === answer._id
+                                                ? 'border-green-500/40 shadow-[0_0_20px_rgba(34,197,94,0.1)]'
+                                                : 'border-white/5'
+                                            }`}
                                     >
                                         <div className="flex items-start gap-4">
                                             <div className="flex flex-col items-center gap-1">
@@ -231,11 +252,29 @@ export default function DoubtDetail() {
                                                     </Link>
                                                     <div className="flex-1">
                                                         <div className="flex justify-between items-start mb-2">
-                                                            <Link href={`/dashboard/profile/${answer.author.username}`} className="hover:underline">
-                                                                <span className="font-semibold text-sm text-gray-300 hover:text-purple-300 transition-colors">
-                                                                    @{answer.author.username}
-                                                                </span>
-                                                            </Link>
+                                                            <div className="flex items-center gap-2">
+                                                                <Link href={`/dashboard/profile/${answer.author.username}`} className="hover:underline">
+                                                                    <span className="font-semibold text-sm text-gray-300 hover:text-purple-300 transition-colors">
+                                                                        @{answer.author.username}
+                                                                    </span>
+                                                                </Link>
+                                                                {doubt.acceptedAnswer === answer._id && (
+                                                                    <motion.span
+                                                                        initial={{ scale: 0.8, opacity: 0 }}
+                                                                        animate={{ scale: 1, opacity: 1 }}
+                                                                        className="flex items-center gap-1.5 text-green-400 font-bold text-[10px] uppercase tracking-widest bg-green-500/10 px-3 py-1 rounded-full border border-green-500/20 shadow-[0_0_10px_rgba(34,197,94,0.2)]"
+                                                                    >
+                                                                        <motion.div
+                                                                            initial={{ rotate: -45 }}
+                                                                            animate={{ rotate: 0 }}
+                                                                            transition={{ type: "spring", stiffness: 200 }}
+                                                                        >
+                                                                            <CheckCircle size={12} className="fill-green-500/20" />
+                                                                        </motion.div>
+                                                                        Accepted Solution
+                                                                    </motion.span>
+                                                                )}
+                                                            </div>
                                                             <span className="text-xs text-gray-600">
                                                                 {new Date(answer.createdAt).toLocaleDateString()}
                                                             </span>
@@ -243,6 +282,33 @@ export default function DoubtDetail() {
                                                         <p className="text-gray-400 leading-relaxed">
                                                             {answer.content}
                                                         </p>
+
+                                                        {/* Accept Answer Button Logic */}
+                                                        {currentUser?.id === doubt.author._id && (
+                                                            <div className="mt-4 flex items-center gap-2">
+                                                                {doubt.acceptedAnswer === answer._id ? (
+                                                                    <button
+                                                                        onClick={() => handleAcceptAnswer(answer._id)}
+                                                                        className="inline-flex items-center gap-1.5 text-xs font-bold text-gray-500 hover:text-red-400 transition-colors bg-white/5 px-3 py-1.5 rounded-lg border border-white/10"
+                                                                    >
+                                                                        <User size={14} />
+                                                                        Unaccept
+                                                                    </button>
+                                                                ) : (
+                                                                    <button
+                                                                        onClick={() => handleAcceptAnswer(answer._id)}
+                                                                        disabled={!!doubt.acceptedAnswer}
+                                                                        className={`inline-flex items-center gap-1.5 text-xs font-bold px-3 py-1.5 rounded-lg border transition-all
+                                                                            ${!!doubt.acceptedAnswer
+                                                                                ? 'bg-gray-800/20 border-white/5 text-gray-600 cursor-not-allowed opacity-50'
+                                                                                : 'bg-purple-500/5 border-purple-500/10 text-purple-400 hover:text-purple-300'}`}
+                                                                    >
+                                                                        <Check size={14} />
+                                                                        Accept Answer
+                                                                    </button>
+                                                                )}
+                                                            </div>
+                                                        )}
                                                     </div>
                                                 </div>
                                             </div>
