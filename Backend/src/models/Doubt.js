@@ -47,6 +47,10 @@ const doubtSchema = new mongoose.Schema({
     acceptedAnswer: {
         type: mongoose.Schema.Types.ObjectId,
         default: null
+    },
+    imageUrl: {
+        type: String,
+        default: null
     }
 }, {
     timestamps: true

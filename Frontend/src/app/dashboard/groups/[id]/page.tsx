@@ -3,7 +3,8 @@ import { useEffect, useState, useRef } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { socket } from "@/lib/socket";
 import api from "@/lib/api";
-import { Send, ArrowLeft, Users, Hash } from "lucide-react";
+import { Send, ArrowLeft, Users, Hash, Image as ImageIcon, Video, Paperclip, Loader2 } from "lucide-react";
+import { uploadMedia } from "@/lib/media";
 import Link from "next/link";
 import { motion } from "framer-motion";
 
@@ -13,6 +14,8 @@ interface Message {
     content: string;
     userId: string;
     createdAt?: string;
+    mediaUrl?: string;
+    mediaType?: 'image' | 'video';
 }
 
 interface Group {
@@ -32,6 +35,8 @@ export default function GroupDetail() {
     const [input, setInput] = useState("");
     const [currentUser, setCurrentUser] = useState<any>(null);
     const [showSidebar, setShowSidebar] = useState(false);
+    const [uploading, setUploading] = useState(false);
+    const fileInputRef = useRef<HTMLInputElement>(null);
     const scrollRef = useRef<HTMLDivElement>(null);
 
     useEffect(() => {
@@ -75,7 +80,9 @@ export default function GroupDetail() {
                 content: m.content,
                 userId: m.user?._id || m.user,
                 username: m.user?.username || 'Unknown',
-                createdAt: m.createdAt
+                createdAt: m.createdAt,
+                mediaUrl: m.mediaUrl,
+                mediaType: m.mediaType
             }));
             setMessages(history);
             scrollToBottom();
@@ -110,6 +117,33 @@ export default function GroupDetail() {
 
         socket.emit("send_group_message", data);
         setInput("");
+    };
+
+    const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (!file || !currentUser) return;
+
+        setUploading(true);
+        try {
+            const { url, resource_type } = await uploadMedia(file);
+
+            const data = {
+                groupId: id,
+                userId: currentUser.id,
+                username: currentUser.username,
+                content: `Sent a ${resource_type}`,
+                mediaUrl: url,
+                mediaType: resource_type === 'video' ? 'video' : 'image'
+            };
+
+            socket.emit("send_group_message", data);
+        } catch (err) {
+            console.error("Upload failed", err);
+            alert("Failed to upload media. Please try again.");
+        } finally {
+            setUploading(false);
+            if (fileInputRef.current) fileInputRef.current.value = '';
+        }
     };
 
     const handleJoin = async () => {
@@ -194,7 +228,21 @@ export default function GroupDetail() {
                                             {msg.createdAt ? new Date(msg.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : ''}
                                         </span>
                                     </div>
-                                    <p className="leading-relaxed text-sm">{msg.content}</p>
+                                    <p className="leading-relaxed text-sm mb-1">{msg.content}</p>
+                                    {msg.mediaUrl && (
+                                        <div className="mt-2 rounded-lg overflow-hidden border border-white/5 bg-black/20">
+                                            {msg.mediaType === 'video' ? (
+                                                <video src={msg.mediaUrl} controls className="max-w-full max-h-[300px]" />
+                                            ) : (
+                                                <img
+                                                    src={msg.mediaUrl}
+                                                    alt="Media"
+                                                    className="max-w-full max-h-[300px] object-contain hover:scale-105 transition-transform cursor-pointer"
+                                                    onClick={() => window.open(msg.mediaUrl, '_blank')}
+                                                />
+                                            )}
+                                        </div>
+                                    )}
                                 </div>
                             </div>
                         );
@@ -205,7 +253,22 @@ export default function GroupDetail() {
                 {/* Input Area */}
                 {isMember ? (
                     <form onSubmit={sendMessage} className="p-4 border-t border-white/10 bg-black/50 backdrop-blur">
-                        <div className="flex gap-3 max-w-4xl mx-auto">
+                        <div className="flex gap-3 max-w-4xl mx-auto items-center">
+                            <input
+                                type="file"
+                                ref={fileInputRef}
+                                onChange={handleFileUpload}
+                                className="hidden"
+                                accept="image/*,video/mp4"
+                            />
+                            <button
+                                type="button"
+                                onClick={() => fileInputRef.current?.click()}
+                                disabled={uploading}
+                                className="w-12 h-12 flex items-center justify-center bg-white/5 border border-white/10 rounded-xl hover:bg-white/10 transition-colors disabled:opacity-50"
+                            >
+                                {uploading ? <Loader2 size={20} className="animate-spin text-purple-500" /> : <Paperclip size={20} className="text-gray-400" />}
+                            </button>
                             <input
                                 value={input}
                                 onChange={(e) => setInput(e.target.value)}

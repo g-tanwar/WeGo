@@ -7,7 +7,7 @@ const { createNotification } = require('../utils/notifications');
 // POST /api/doubts - Create a new doubt
 router.post('/', authenticate, async (req, res) => {
     try {
-        const { title, description, tags } = req.body;
+        const { title, description, tags, imageUrl } = req.body;
 
         if (!title || !description) {
             return res.status(400).json({ error: 'Title and description are required' });
@@ -17,7 +17,8 @@ router.post('/', authenticate, async (req, res) => {
             title,
             description,
             tags: tags || [],
-            author: req.user.id // Taken from the token payload
+            author: req.user.id, // Taken from the token payload
+            imageUrl
         });
 
         // Populate author details for the response
