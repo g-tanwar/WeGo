@@ -5,6 +5,7 @@ import api from "@/lib/api";
 import Link from "next/link";
 import { ArrowLeft, MessageCircle, ArrowBigUp, Tag, Send, User, CheckCircle, Check } from "lucide-react";
 import { motion } from "framer-motion";
+import MentionText from "@/components/MentionText";
 
 interface Answer {
     _id: string;
@@ -188,7 +189,7 @@ export default function DoubtDetail() {
 
                         <h1 className="text-3xl font-bold mb-4 leading-tight">{doubt.title}</h1>
                         <div className="text-gray-300 leading-relaxed whitespace-pre-wrap mb-6 text-lg">
-                            {doubt.description}
+                            <MentionText text={doubt.description} />
                         </div>
 
                         <div className="flex flex-wrap gap-2">
@@ -228,8 +229,8 @@ export default function DoubtDetail() {
                                         animate={{ opacity: 1, x: 0 }}
                                         transition={{ delay: i * 0.1 }}
                                         className={`bg-black/40 border rounded-2xl p-6 transition-all duration-500 ${doubt.acceptedAnswer === answer._id
-                                                ? 'border-green-500/40 shadow-[0_0_20px_rgba(34,197,94,0.1)]'
-                                                : 'border-white/5'
+                                            ? 'border-green-500/40 shadow-[0_0_20px_rgba(34,197,94,0.1)]'
+                                            : 'border-white/5'
                                             }`}
                                     >
                                         <div className="flex items-start gap-4">
@@ -280,7 +281,7 @@ export default function DoubtDetail() {
                                                             </span>
                                                         </div>
                                                         <p className="text-gray-400 leading-relaxed">
-                                                            {answer.content}
+                                                            <MentionText text={answer.content} />
                                                         </p>
 
                                                         {/* Accept Answer Button Logic */}

@@ -34,6 +34,18 @@ const io = new Server(server, {
 app.use(cors());
 app.use(express.json());
 
+// Basic request timing to catch slow/hanging endpoints during debugging.
+app.use((req, res, next) => {
+  const start = Date.now();
+  res.on('finish', () => {
+    const ms = Date.now() - start;
+    if (ms > 1000) {
+      console.warn(`[SLOW ${ms}ms] ${req.method} ${req.originalUrl} -> ${res.statusCode}`);
+    }
+  });
+  next();
+});
+
 app.use('/api/auth', authRoutes);
 app.use('/api/doubts', doubtRoutes);
 app.use('/api/groups', groupRoutes);
@@ -184,7 +196,8 @@ app.get('/api/districts/:id/messages', async (req, res) => {
   }
 });
 
-const PORT = process.env.PORT || 5000;
+// Keep default aligned with Backend/.env.example and Frontend default baseURL.
+const PORT = process.env.PORT || 5001;
 
 // Seeding function
 const seedDistricts = async () => {

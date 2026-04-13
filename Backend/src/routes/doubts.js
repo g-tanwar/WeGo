@@ -3,6 +3,7 @@ const router = express.Router();
 const Doubt = require('../models/Doubt');
 const { authenticate } = require('../middleware/auth');
 const { createNotification } = require('../utils/notifications');
+const { processMentions } = require('../utils/mentions');
 
 // POST /api/doubts - Create a new doubt
 router.post('/', authenticate, async (req, res) => {
@@ -17,11 +18,18 @@ router.post('/', authenticate, async (req, res) => {
             title,
             description,
             tags: tags || [],
-            author: req.user.id, // Taken from the token payload
-            imageUrl
+            author: req.user.id,
+            imageUrl,
+            mentions: [] // Placeholder
         });
 
-        // Populate author details for the response
+        // Process mentions and update doubt
+        const mentionedIds = await processMentions(description, req.user.id, `/dashboard/doubts/${newDoubt._id}`, 'doubt');
+        if (mentionedIds.length > 0) {
+            newDoubt.mentions = mentionedIds;
+            await newDoubt.save();
+        }
+
         await newDoubt.populate('author', 'username');
 
         res.status(201).json(newDoubt);
@@ -109,10 +117,19 @@ router.post('/:id/answer', authenticate, async (req, res) => {
 
         const newAnswer = {
             content,
-            author: req.user.id
+            author: req.user.id,
+            mentions: []
         };
 
-        doubt.answers.push(newAnswer);
+        const ansIndex = doubt.answers.push(newAnswer) - 1;
+        const savedAnswer = doubt.answers[ansIndex];
+
+        // Process mentions and update answer
+        const mentionedIds = await processMentions(content, req.user.id, `/dashboard/doubts/${id}`, 'answer');
+        if (mentionedIds.length > 0) {
+            savedAnswer.mentions = mentionedIds;
+        }
+
         await doubt.save();
 
         // Create Notification for doubt author

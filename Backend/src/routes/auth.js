@@ -28,20 +28,30 @@ router.post('/signup', async (req, res) => {
 
 // POST /api/auth/login
 router.post('/login', async (req, res) => {
+  const reqId = `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`;
+  const startedAt = Date.now();
   try {
     const { email, password } = req.body;
+    console.log(`[AUTH][LOGIN][${reqId}] hit email=${email ?? '(missing)'} ip=${req.ip}`);
     if (!email || !password) return res.status(400).json({ error: 'Missing fields' });
 
+    const t0 = Date.now();
     const user = await User.findOne({ email });
+    const t1 = Date.now();
     if (!user) return res.status(401).json({ error: 'Invalid credentials' });
 
+    const t2 = Date.now();
     const ok = await bcrypt.compare(password, user.password);
+    const t3 = Date.now();
     if (!ok) return res.status(401).json({ error: 'Invalid credentials' });
 
     const token = jwt.sign({ id: user._id, email: user.email, role: user.role }, JWT_SECRET, { expiresIn: '7d' });
+    console.log(
+      `[AUTH][LOGIN][${reqId}] ok total=${Date.now() - startedAt}ms db=${t1 - t0}ms bcrypt=${t3 - t2}ms`
+    );
     res.json({ token, user: { id: user._id, username: user.username, email: user.email, role: user.role } });
   } catch (err) {
-    console.error(err);
+    console.error(`[AUTH][LOGIN][${reqId}] error total=${Date.now() - startedAt}ms`, err);
     res.status(500).json({ error: 'Internal error' });
   }
 });

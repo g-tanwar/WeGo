@@ -71,6 +71,7 @@ export default function NotificationBell() {
             case 'answer': return '📝';
             case 'upvote': return '👍';
             case 'join': return '👥';
+            case 'mention': return '@';
             default: return '🔔';
         }
     };

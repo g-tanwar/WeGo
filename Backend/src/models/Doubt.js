@@ -17,7 +17,11 @@ const answerSchema = new mongoose.Schema({
     createdAt: {
         type: Date,
         default: Date.now
-    }
+    },
+    mentions: [{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'User'
+    }]
 });
 
 const doubtSchema = new mongoose.Schema({
@@ -40,6 +44,10 @@ const doubtSchema = new mongoose.Schema({
         required: true
     },
     upvotes: [{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'User'
+    }],
+    mentions: [{
         type: mongoose.Schema.Types.ObjectId,
         ref: 'User'
     }],
