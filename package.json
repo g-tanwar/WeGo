@@ -1,5 +1,8 @@
 {
   "dependencies": {
     "next-cloudinary": "^6.17.5"
+  },
+  "devDependencies": {
+    "@types/react": "^19.2.14"
   }
 }
