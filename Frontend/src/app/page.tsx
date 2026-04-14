@@ -1,8 +1,12 @@
 "use client";
 import Link from "next/link";
 import { motion } from "framer-motion";
-import { CldImage } from 'next-cloudinary';
+import dynamic from "next/dynamic";
 
+const CldImage = dynamic(
+  () => import("next-cloudinary").then((mod) => mod.CldImage),
+  { ssr: false }
+);
 
 export default function Home() {
   return (

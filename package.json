@@ -1,8 +1,10 @@
 {
-  "dependencies": {
-    "next-cloudinary": "^6.17.5"
-  },
-  "devDependencies": {
-    "@types/react": "^19.2.14"
+  "name": "wego",
+  "private": true,
+  "scripts": {
+    "postinstall": "npm --prefix Frontend install",
+    "build": "npm --prefix Frontend run build",
+    "start": "npm --prefix Frontend start",
+    "dev": "npm --prefix Frontend run dev"
   }
 }
