@@ -21,7 +21,7 @@ export default function SignupPage() {
             localStorage.setItem("user", JSON.stringify(res.data.user));
             router.push("/dashboard");
         } catch (err: any) {
-            setError(err.response?.data?.error || "Registration failed");
+            setError(err.response?.data?.error || err.message || "Registration failed");
         } finally {
             setLoading(false);
         }
